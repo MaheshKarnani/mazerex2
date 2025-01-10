@@ -171,12 +171,14 @@ def count_pel4():
 
 #RFID interrupts as detectors GPIO cluster 16 19 20 26
 detect1 = DigitalInputDevice(16) 
-
-detect2 = DigitalInputDevice(21)
+detect2 = DigitalInputDevice(20)
+detect3 = DigitalInputDevice(19) 
+detect4 = DigitalInputDevice(26)
 
 animal1=tag1
 animal2=tag2
-
+animal3=tag3
+animal4=tag4
 
 savepath="/home/pi/Documents/Data/"
 #Choose "Animal" or "Test" below
@@ -189,29 +191,47 @@ if trial_type == "Animal":
     subjects = ["19644194143" ,"19644194143", "19644194143"] #out of study,  ""
 
 event_list1 = {
-    "Mode" : [], 
-    "Start_Time": [],
-    "Animal": [],
-    "Weight": [],
+    "Mode" : ["initialize"], 
+    "Start_Time": [datetime.now()],
+    "Animal": [0],
+    "Weight": [int(get_reading(mux[0]["instance"],1))],
     "Unit":1,
-    "Pellets" : [],   
+    "Pellets" : [pel1],   
 }
-event_list1.update({'Mode': ["initialize"]})
-event_list1.update({'Start_Time': [datetime.now()]})
-event_list1.update({'Pellets': [pel1]})
-event_list1.update({'Animal': [0]})
-weight1=int(get_reading(mux[0]["instance"],1)) #changed from no int, and just get_reading - so check for errors!
-event_list1.update({'Weight': [weight1]})
+# event_list1.update({'Mode': ["initialize"]})
+# event_list1.update({'Start_Time': [datetime.now()]})
+# event_list1.update({'Pellets': [pel1]})
+# event_list1.update({'Animal': [0]})
+# weight1=int(get_reading(mux[0]["instance"],1)) #changed from no int, and just get_reading - so check for errors!
+# event_list1.update({'Weight': [weight1]})
+event_list2 = {
+    "Mode" : ["initialize"], 
+    "Start_Time": [datetime.now()],
+    "Animal": [0],
+    "Weight": [int(get_reading(mux[0]["instance"],3))],
+    "Unit":2,
+    "Pellets" : [pel2],   
+}
+event_list3 = {
+    "Mode" : ["initialize"], 
+    "Start_Time": [datetime.now()],
+    "Animal": [0],
+    "Weight": [int(get_reading(mux[0]["instance"],4))],
+    "Unit":3,
+    "Pellets" : [pel3],   
+}
+event_list4 = {
+    "Mode" : ["initialize"], 
+    "Start_Time": [datetime.now()],
+    "Animal": [0],
+    "Weight": [int(get_reading(mux[0]["instance"],6))],
+    "Unit":4,
+    "Pellets" : [pel4],   
+}
 
 class SaveData:
-    def append_event(self,event_list1):
-        """
-        Function used to save event parameters to a .csv file
-        example use save.append_event("", "", "initialize", animaltag)
-        """
-#         global event_list1
-        
-        df_e = pd.DataFrame(event_list1)
+    def append_event(self,event_list):
+        df_e = pd.DataFrame(event_list)
         datetag=str(date.today())
         if not os.path.isfile(savepath + datetag + "_events.csv"):
             df_e.to_csv(savepath + datetag + "_events.csv", encoding="utf-8-sig", index=False)
@@ -220,7 +240,13 @@ class SaveData:
 
 save = SaveData()
 save.append_event(event_list1)
+save.append_event(event_list2)
+save.append_event(event_list3)
+save.append_event(event_list4)
 event_list1.update({'Mode': [mode]})
+event_list2.update({'Mode': [mode]})
+event_list3.update({'Mode': [mode]})
+event_list4.update({'Mode': [mode]})
 
 # Experiment loop
 while True:
@@ -239,5 +265,43 @@ while True:
         event_list1.update({'Animal': [tag1]})
         weight1=int(get_reading(mux[0]["instance"],1)) #changed from no int, and just get_reading - so check for errors!
         event_list1.update({'Weight': [weight1]})
-    
-          
+    if detect2.value == 0:
+        print("unit2")
+        tag2=int(scan_tag2(mux[0]["instance"],2))
+        event_list2.update({'Pellets': [pel2]})
+        save.append_event(event_list2)
+        pel2=0
+        event_list2.update({'Start_Time': [datetime.now()]})
+        event_list2.update({'Animal': [tag2]})
+        weight2=int(get_reading(mux[0]["instance"],3)) #changed from no int, and just get_reading - so check for errors!
+        event_list2.update({'Weight': [weight2]})
+    if detect3.value == 0:
+        print("unit3")
+        tag1=int(scan_tag3(mux[0]["instance"],7))
+        event_list3.update({'Pellets': [pel3]})
+        save.append_event(event_list3)
+        pel3=0
+        event_list3.update({'Start_Time': [datetime.now()]})
+        event_list3.update({'Animal': [tag3]})
+        weight3=int(get_reading(mux[0]["instance"],4)) #changed from no int, and just get_reading - so check for errors!
+        event_list3.update({'Weight': [weight3]})
+    if detect4.value == 0:
+        print("unit4")
+        tag4=int(scan_tag4(mux[0]["instance"],5))
+        event_list4.update({'Pellets': [pel4]})
+        save.append_event(event_list4)
+        pel4=0
+        event_list4.update({'Start_Time': [datetime.now()]})
+        event_list4.update({'Animal': [tag4]})
+        weight4=int(get_reading(mux[0]["instance"],6)) #changed from no int, and just get_reading - so check for errors!
+        event_list4.update({'Weight': [weight4]})
+         
+# get_reading(mux[0]["instance"],1)
+# get_reading(mux[0]["instance"],3)
+# get_reading(mux[0]["instance"],4)
+# get_reading(mux[0]["instance"],6)
+
+# tag1=int(scan_tag1(mux[0]["instance"],0))
+# tag2=int(scan_tag2(mux[0]["instance"],2))
+# tag3=int(scan_tag3(mux[0]["instance"],7))
+# tag4=int(scan_tag4(mux[0]["instance"],5))
