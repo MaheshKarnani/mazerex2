@@ -12,7 +12,15 @@ import sys
 from gpiozero import DigitalInputDevice, DigitalOutputDevice
 
 #Initialization routine
-mode=1 #experiment mode 1=bsl, 2=induction, 3=post
+mode=2 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post
+#load scale calibration files
+scale_cal_filepath="/home/pi/Documents/Data/ScaleCal.json"
+scale_tare_filepath="/home/pi/Documents/Data/ScaleTare.json"
+with open(scale_cal_filepath, 'r') as file:
+    scale_cal=json.load(file)
+with open(scale_tare_filepath, 'r') as file:
+    scale_tare=json.load(file)
+#initialize qwiic hardware
 def enable_port(mux: qwiic_tca9548a.QwiicTCA9548A, port):
     mux.enable_channels(port)
 def disable_port(mux: qwiic_tca9548a.QwiicTCA9548A, port):
@@ -56,12 +64,8 @@ def initialize_scales(mux):
         disable_port(mux, port)
     print(f"scales initialised: {scales} with mux: {mux.address} \n")
     return scales
-
-# 
-# def get_calibration_data_file_name(mux):
-#     return "tare_mux_" + str(mux["instance"].address) + ".json"
-
 def get_reading(mux,port):
+    global scale_cal
     scales = []
     bus = create_bus()
     port = port
@@ -70,6 +74,8 @@ def get_reading(mux,port):
     if not nau.begin(bus):
         # print(f"NOT CONNECTED TO SCALE: {port} \n")
         disable_port(mux, port)
+    nau.setCalibrationFactor(scale_cal[port])
+    nau.setZeroOffset(scale_tare[port])
     weight=nau.getWeight() * 1000
     print("Mass {0:0.3f} g".format(weight))
     disable_port(mux, port)
@@ -105,7 +111,7 @@ def scan_tag3(mux,port):
     bus = create_bus()
     port = port
     enable_port(mux, port)
-    my_RFID3 = qwiic_rfid.QwiicRFID(0x1A)
+    my_RFID3 = qwiic_rfid.QwiicRFID(0x2B)
     if not my_RFID3.begin():
         # print(f"NOT CONNECTED TO : {port} \n")
         disable_port(mux, port)
@@ -118,7 +124,7 @@ def scan_tag4(mux,port):
     bus = create_bus()
     port = port
     enable_port(mux, port)
-    my_RFID4 = qwiic_rfid.QwiicRFID(0x2B)
+    my_RFID4 = qwiic_rfid.QwiicRFID(0x1A)
     if not my_RFID4.begin():
         # print(f"NOT CONNECTED TO : {port} \n")
         disable_port(mux, port)
@@ -140,8 +146,8 @@ get_reading(mux[0]["instance"],6)
 
 tag1=int(scan_tag1(mux[0]["instance"],0))
 tag2=int(scan_tag2(mux[0]["instance"],2))
-tag3=int(scan_tag3(mux[0]["instance"],7))
-tag4=int(scan_tag4(mux[0]["instance"],5))
+tag3=int(scan_tag3(mux[0]["instance"],5))
+tag4=int(scan_tag4(mux[0]["instance"],7))
 print(tag1)
 print(tag2)
 print(tag3)
@@ -169,9 +175,24 @@ def count_pel4():
     global pel4
     pel4+=1
 
+feed1=DigitalOutputDevice(5)
+feed2=DigitalOutputDevice(13)
+feed3=DigitalOutputDevice(6)
+feed4=DigitalOutputDevice(12)
+feed1.on()
+feed2.on()
+feed3.on()
+feed4.on()
 #RFID interrupts as detectors GPIO cluster 16 19 20 26
-detect1 = DigitalInputDevice(16) 
-detect2 = DigitalInputDevice(20)
+unit1=False
+
+
+detect1 = DigitalInputDevice(16)
+def flag_unit1():
+    global unit1
+    unit1=True
+    print(unit1)
+detect2 = DigitalInputDevice(20, pull_up=False)
 detect3 = DigitalInputDevice(19) 
 detect4 = DigitalInputDevice(26)
 
@@ -181,20 +202,12 @@ animal3=tag3
 animal4=tag4
 
 savepath="/home/pi/Documents/Data/"
-#Choose "Animal" or "Test" below
-#trial_type = "Test"
-trial_type = "Animal"
-print(trial_type)
-if trial_type == "Test":
-    subjects = ["335490249236","x", "y"]
-if trial_type == "Animal":  
-    subjects = ["19644194143" ,"19644194143", "19644194143"] #out of study,  ""
 
 event_list1 = {
     "Mode" : ["initialize"], 
     "Start_Time": [datetime.now()],
     "Animal": [0],
-    "Weight": [int(get_reading(mux[0]["instance"],1))],
+    "Weight": [round(float(get_reading(mux[0]["instance"],1)),2)],
     "Unit":1,
     "Pellets" : [pel1],   
 }
@@ -208,7 +221,7 @@ event_list2 = {
     "Mode" : ["initialize"], 
     "Start_Time": [datetime.now()],
     "Animal": [0],
-    "Weight": [int(get_reading(mux[0]["instance"],3))],
+    "Weight": [round(float(get_reading(mux[0]["instance"],3)),2)],
     "Unit":2,
     "Pellets" : [pel2],   
 }
@@ -216,7 +229,7 @@ event_list3 = {
     "Mode" : ["initialize"], 
     "Start_Time": [datetime.now()],
     "Animal": [0],
-    "Weight": [int(get_reading(mux[0]["instance"],4))],
+    "Weight": [round(float(get_reading(mux[0]["instance"],4)),2)],
     "Unit":3,
     "Pellets" : [pel3],   
 }
@@ -224,7 +237,7 @@ event_list4 = {
     "Mode" : ["initialize"], 
     "Start_Time": [datetime.now()],
     "Animal": [0],
-    "Weight": [int(get_reading(mux[0]["instance"],6))],
+    "Weight": [round(float(get_reading(mux[0]["instance"],6)),2)],
     "Unit":4,
     "Pellets" : [pel4],   
 }
@@ -255,6 +268,8 @@ while True:
     eat3.when_activated=count_pel3
     eat4.when_activated=count_pel4
     
+#     detect1.when_activated=flag_unit1
+    
     if detect1.value == 0:
         print("unit1")
         tag1=int(scan_tag1(mux[0]["instance"],0))
@@ -263,8 +278,10 @@ while True:
         pel1=0
         event_list1.update({'Start_Time': [datetime.now()]})
         event_list1.update({'Animal': [tag1]})
-        weight1=int(get_reading(mux[0]["instance"],1)) #changed from no int, and just get_reading - so check for errors!
+        weight1=round(float(get_reading(mux[0]["instance"],1)),2) 
         event_list1.update({'Weight': [weight1]})
+        unit_flag1=False
+        
     if detect2.value == 0:
         print("unit2")
         tag2=int(scan_tag2(mux[0]["instance"],2))
@@ -273,35 +290,25 @@ while True:
         pel2=0
         event_list2.update({'Start_Time': [datetime.now()]})
         event_list2.update({'Animal': [tag2]})
-        weight2=int(get_reading(mux[0]["instance"],3)) #changed from no int, and just get_reading - so check for errors!
+        weight2=round(float(get_reading(mux[0]["instance"],3)),2)
         event_list2.update({'Weight': [weight2]})
     if detect3.value == 0:
         print("unit3")
-        tag1=int(scan_tag3(mux[0]["instance"],7))
+        tag3=int(scan_tag3(mux[0]["instance"],5))
         event_list3.update({'Pellets': [pel3]})
         save.append_event(event_list3)
         pel3=0
         event_list3.update({'Start_Time': [datetime.now()]})
         event_list3.update({'Animal': [tag3]})
-        weight3=int(get_reading(mux[0]["instance"],4)) #changed from no int, and just get_reading - so check for errors!
+        weight3=round(float(get_reading(mux[0]["instance"],4)),2) 
         event_list3.update({'Weight': [weight3]})
     if detect4.value == 0:
         print("unit4")
-        tag4=int(scan_tag4(mux[0]["instance"],5))
+        tag4=int(scan_tag4(mux[0]["instance"],7))
         event_list4.update({'Pellets': [pel4]})
         save.append_event(event_list4)
         pel4=0
         event_list4.update({'Start_Time': [datetime.now()]})
         event_list4.update({'Animal': [tag4]})
-        weight4=int(get_reading(mux[0]["instance"],6)) #changed from no int, and just get_reading - so check for errors!
-        event_list4.update({'Weight': [weight4]})
-         
-# get_reading(mux[0]["instance"],1)
-# get_reading(mux[0]["instance"],3)
-# get_reading(mux[0]["instance"],4)
-# get_reading(mux[0]["instance"],6)
-
-# tag1=int(scan_tag1(mux[0]["instance"],0))
-# tag2=int(scan_tag2(mux[0]["instance"],2))
-# tag3=int(scan_tag3(mux[0]["instance"],7))
-# tag4=int(scan_tag4(mux[0]["instance"],5))
+        weight4=round(float(get_reading(mux[0]["instance"],6)),2) 
+        event_list4.update({'Weight': [weight4]}) 
