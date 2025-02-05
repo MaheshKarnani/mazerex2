@@ -8,12 +8,17 @@ import matplotlib.dates as mdates
 import statistics
 plt.close('all')
 
-datetag=str(date.today()) #OR TYPE DESIRED DATE ON NEXT LINE AND UNCOMMENT IT
-# datetag="2025-01-28"
+last_date=date.today() #OR TYPE DESIRED DATE ON NEXT LINE AND UNCOMMENT IT
+# last_date=date(2025,2,3)
+datetag=str(last_date)
 known_tags=[196447011,19645674,19645246186,19644148217,19647144222]
 filtermin=13 #lower limit in g
-filtermax=23 #upper limit in g            
-loadpath="/home/maheshkarnani/Documents/Data/rex2/"
+filtermax=23 #upper limit in g 
+start_date=date(2025,1,29) 
+d=last_date-start_date
+days_to_plot=d.days
+         
+loadpath="/home/maheshkarnani/Documents/Code/Mazerex2/mazerex2/"
 data = pd.read_csv(loadpath + datetag + "_events.csv")
 display(data.head(5))
 tags=data['Animal']
@@ -91,10 +96,9 @@ ax3.set_ylim([12, 20])
 # gather and plot daily averages of known animals
 matrix=[averages]
 x=[date.today()]
-for j in range(4):
+for j in range(days_to_plot-1):
     day=date.today()-timedelta(days = j+1)
     x.append(day)
-    loadpath="/home/maheshkarnani/Documents/Data/rex2/"
     data = pd.read_csv(loadpath + str(day) + "_events.csv")
     # plot filtered weights of known animals and gather averages
     averages=[]
@@ -121,15 +125,3 @@ fmt=mdates.DateFormatter('%m-%d')
 ax4.xaxis.set_major_formatter(fmt)
 plt.subplots_adjust(bottom=0.15)
 plt.show()
-
-
-# ax1.set_title("animals 1-2")
-# ax1.plot(filtered_minmax['Start_Time'] , filtered_minmax['Weight'])
-# # plot the DAC (clamp current)
-# ax2 = fig3.add_subplot(223, sharex=ax1)  # <-- this argument is new
-# ax2.set_title("DAC (stimulus waveform)")
-# ax2.plot(abf.sweepX, abf.sweepC, color='r')
-# # decorate the plots
-
-# ax2.set_xlabel(abf.sweepLabelX)
-# ax2.set_ylabel(abf.sweepLabelC)
