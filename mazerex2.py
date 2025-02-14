@@ -12,7 +12,7 @@ import sys
 from gpiozero import DigitalInputDevice, DigitalOutputDevice
 
 #Initialization routine
-mode=2 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post
+mode=5 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
 #load scale calibration files
 scale_cal_filepath="/home/pi/Documents/Data/ScaleCal.json"
 scale_tare_filepath="/home/pi/Documents/Data/ScaleTare.json"
@@ -79,6 +79,7 @@ def get_reading(mux,port):
     weight=nau.getWeight() * 1000
     print("Mass {0:0.3f} g".format(weight))
     disable_port(mux, port)
+    bus.close()
     return weight
 def scan_tag1(mux,port):
     antennas = []
@@ -92,6 +93,7 @@ def scan_tag1(mux,port):
     tag1 = my_RFID1.get_tag()
 #     scan_time = my_RFID.get_prec_req_time()
     disable_port(mux, port)
+    bus.close()
     return tag1
 def scan_tag2(mux,port):
     antennas = []
@@ -105,6 +107,7 @@ def scan_tag2(mux,port):
     tag2 = my_RFID2.get_tag()
 #     scan_time = my_RFID.get_prec_req_time()
     disable_port(mux, port)
+    bus.close()
     return tag2
 def scan_tag3(mux,port):
     antennas = []
@@ -118,6 +121,7 @@ def scan_tag3(mux,port):
     tag3 = my_RFID3.get_tag()
 #     scan_time = my_RFID.get_prec_req_time()
     disable_port(mux, port)
+    bus.close()
     return tag3
 def scan_tag4(mux,port):
     antennas = []
@@ -131,6 +135,7 @@ def scan_tag4(mux,port):
     tag4 = my_RFID4.get_tag()
 #     scan_time = my_RFID.get_prec_req_time()
     disable_port(mux, port)
+    bus.close()
     return tag4
 
 mux = create_instance()
