@@ -1,0 +1,55 @@
+30.1.25 0911
+PROBLEM IN THONNY'S BACK-END: Exception while handling 'Run' (OSError: [Errno 24] Too many open files: '/home/pi/Documents/Code/mazerex2.py').
+See Thonny's backend.log for more info.
+
+Process ended with exit code 1.
+
+2000
+PROBLEM IN THONNY'S BACK-END: Exception while handling 'Run' (OSError: [Errno 24] Too many open files: '/home/pi/Documents/Code/mazerex2.py').
+See Thonny's backend.log for more info.
+
+Process ended with exit code 1.
+
+
+31.1.2025 10am
+Traceback (most recent call last):
+  File "/home/pi/Documents/Code/mazerex2.py", line 307, in <module>
+  File "/home/pi/Documents/Code/mazerex2.py", line 124, in scan_tag4
+  File "/home/pi/Documents/Code/mazerex2.py", line 46, in create_bus
+  File "/home/pi/Documents/Code/erex/lib/python3.11/site-packages/smbus2/smbus2.py", line 280, in __init__
+  File "/home/pi/Documents/Code/erex/lib/python3.11/site-packages/smbus2/smbus2.py", line 310, in open
+OSError: [Errno 24] Too many open files: '/dev/i2c-1'
+
+
+3.15pm
+unit1
+PROBLEM IN THONNY'S BACK-END: Exception while handling 'Run' (OSError: [Errno 24] Too many open files: '/home/pi/Documents/Code/mazerex2.py').
+See Thonny's backend.log for more info.
+
+Process ended with exit code 1.
+
+
+
+2030
+unit2
+PROBLEM IN THONNY'S BACK-END: Exception while handling 'Run' (OSError: [Errno 24] Too many open files: '/home/pi/Documents/Code/mazerex2.py').
+See Thonny's backend.log for more info.
+
+Process ended with exit code 1.
+
+1.2.2025
+11.20 dropped off at 6am
+
+unit1
+PROBLEM IN THONNY'S BACK-END: Exception while handling 'Run' (OSError: [Errno 24] Too many open files: '/home/pi/Documents/Code/mazerex2.py').
+See Thonny's backend.log for more info.
+
+Process ended with exit code 1.
+
+
+2.2.2025
+16.50
+same issue
+
+
+
