@@ -2,7 +2,7 @@ import qwiic_tca9548a
 import PyNAU7802
 import smbus2
 import time
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 import pandas as pd
 import os
 import json
@@ -10,6 +10,7 @@ import requests
 import qwiic_rfid
 import sys
 from gpiozero import DigitalInputDevice, DigitalOutputDevice
+from github import Github, InputGitTreeElement
 
 #Initialization routine
 mode=1 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
@@ -265,16 +266,19 @@ event_list1.update({'Mode': [mode]})
 event_list2.update({'Mode': [mode]})
 event_list3.update({'Mode': [mode]})
 event_list4.update({'Mode': [mode]})
-
+upload_time=datetime.now()
+upload_interval=timedelta(hours=6) #minimum interval between uploads, hours suggested
+action_time=datetime.now()
+action_interval=timedelta(minutes=15) #safe interval from last detection to start upload, 15 min suggested
 # Experiment loop
 while True:
     eat1.when_activated=count_pel1
     eat2.when_activated=count_pel2
     eat3.when_activated=count_pel3
     eat4.when_activated=count_pel4
-    
-#     detect1.when_activated=flag_unit1
-    
+    time_since_upload=datetime.now()-upload_time
+    time_since_action=datetime.now()-action_time
+
     if detect1.value == 0:
         print("unit1")
         tag1=int(scan_tag1(mux[0]["instance"],0))
@@ -285,6 +289,7 @@ while True:
         event_list1.update({'Animal': [tag1]})
         weight1=round(float(get_reading(mux[0]["instance"],1)),2) 
         event_list1.update({'Weight': [weight1]})
+        action_time=datetime.now()
         unit_flag1=False
         
     if detect2.value == 0:
@@ -297,6 +302,7 @@ while True:
         event_list2.update({'Animal': [tag2]})
         weight2=round(float(get_reading(mux[0]["instance"],3)),2)
         event_list2.update({'Weight': [weight2]})
+        action_time=datetime.now()
     if detect3.value == 0:
         print("unit3")
         tag3=int(scan_tag3(mux[0]["instance"],5))
@@ -307,6 +313,7 @@ while True:
         event_list3.update({'Animal': [tag3]})
         weight3=round(float(get_reading(mux[0]["instance"],4)),2) 
         event_list3.update({'Weight': [weight3]})
+        action_time=datetime.now()
     if detect4.value == 0:
         print("unit4")
         tag4=int(scan_tag4(mux[0]["instance"],7))
@@ -317,3 +324,33 @@ while True:
         event_list4.update({'Animal': [tag4]})
         weight4=round(float(get_reading(mux[0]["instance"],6)),2) 
         event_list4.update({'Weight': [weight4]}) 
+        action_time=datetime.now()
+    if time_since_upload>upload_interval:
+        if time_since_action>action_interval:
+            #deposit weight data to public repository
+            g = Github("token")
+            repo = g.get_user().get_repo('mazerex2') # repo name
+            file_list=list()
+            file_names=list()
+            datetag=str(date.today())
+            file_list.append(savepath + datetag + "_events.csv")
+            file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
+            datetag=str(date.today()-timedelta(days = 1))
+            file_list.append(savepath + datetag + "_events.csv")
+            file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
+            commit_message = 'automated upload from rig1'
+            master_ref = repo.get_git_ref('heads/main')
+            master_sha = master_ref.object.sha
+            base_tree = repo.get_git_tree(master_sha)
+            element_list = list()
+            for i, entry in enumerate(file_list):
+                with open(entry) as input_file:
+                    data = input_file.read()
+                element = InputGitTreeElement(file_names[i], '100644', 'blob', data)
+                element_list.append(element)
+            tree = repo.create_git_tree(element_list, base_tree)
+            parent = repo.get_git_commit(master_sha)
+            commit = repo.create_git_commit(commit_message, tree, [parent])
+            master_ref.edit(commit.sha)
+            print("database updated")
+            upload_time=datetime.now()
