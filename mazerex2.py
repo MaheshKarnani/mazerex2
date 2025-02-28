@@ -12,7 +12,7 @@ import sys
 from gpiozero import DigitalInputDevice, DigitalOutputDevice
 
 #Initialization routine
-mode=5 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
+mode=1 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
 #load scale calibration files
 scale_cal_filepath="/home/pi/Documents/Data/ScaleCal.json"
 scale_tare_filepath="/home/pi/Documents/Data/ScaleTare.json"
