@@ -327,30 +327,33 @@ while True:
         action_time=datetime.now()
     if time_since_upload>upload_interval:
         if time_since_action>action_interval:
-            #deposit weight data to public repository
-            g = Github("token")
-            repo = g.get_user().get_repo('mazerex2') # repo name
-            file_list=list()
-            file_names=list()
-            datetag=str(date.today())
-            file_list.append(savepath + datetag + "_events.csv")
-            file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
-            datetag=str(date.today()-timedelta(days = 1))
-            file_list.append(savepath + datetag + "_events.csv")
-            file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
-            commit_message = 'automated upload from rig1'
-            master_ref = repo.get_git_ref('heads/main')
-            master_sha = master_ref.object.sha
-            base_tree = repo.get_git_tree(master_sha)
-            element_list = list()
-            for i, entry in enumerate(file_list):
-                with open(entry) as input_file:
-                    data = input_file.read()
-                element = InputGitTreeElement(file_names[i], '100644', 'blob', data)
-                element_list.append(element)
-            tree = repo.create_git_tree(element_list, base_tree)
-            parent = repo.get_git_commit(master_sha)
-            commit = repo.create_git_commit(commit_message, tree, [parent])
-            master_ref.edit(commit.sha)
-            print("database updated")
-            upload_time=datetime.now()
+            try:
+                #deposit weight data to public repository
+                upload_time=datetime.now()
+                g = Github("token")
+                repo = g.get_user().get_repo('mazerex2') # repo name
+                file_list=list()
+                file_names=list()
+                datetag=str(date.today())
+                file_list.append(savepath + datetag + "_events.csv")
+                file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
+                datetag=str(date.today()-timedelta(days = 1))
+                file_list.append(savepath + datetag + "_events.csv")
+                file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
+                commit_message = 'automated upload from rig1'
+                master_ref = repo.get_git_ref('heads/main')
+                master_sha = master_ref.object.sha
+                base_tree = repo.get_git_tree(master_sha)
+                element_list = list()
+                for i, entry in enumerate(file_list):
+                    with open(entry) as input_file:
+                        data = input_file.read()
+                    element = InputGitTreeElement(file_names[i], '100644', 'blob', data)
+                    element_list.append(element)
+                tree = repo.create_git_tree(element_list, base_tree)
+                parent = repo.get_git_commit(master_sha)
+                commit = repo.create_git_commit(commit_message, tree, [parent])
+                master_ref.edit(commit.sha)
+                print("database updated")
+            except:
+                print("database update failed")
