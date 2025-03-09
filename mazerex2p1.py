@@ -11,6 +11,7 @@ import qwiic_rfid
 import sys
 from gpiozero import DigitalInputDevice, DigitalOutputDevice
 from github import Github, InputGitTreeElement
+import keyboard
 
 #Initialization routine
 mode=1 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
@@ -276,8 +277,6 @@ while True:
     eat2.when_activated=count_pel2
     eat3.when_activated=count_pel3
     eat4.when_activated=count_pel4
-    time_since_upload=datetime.now()-upload_time
-    time_since_action=datetime.now()-action_time
 
     if detect1.value == 0:
         print("unit1")
@@ -325,6 +324,27 @@ while True:
         weight4=round(float(get_reading(mux[0]["instance"],6)),2) 
         event_list4.update({'Weight': [weight4]}) 
         action_time=datetime.now()
+        
+    # force data collection and upload when user presses c
+    if keyboard.is_pressed('c'):
+        event_list1.update({'Pellets': [pel1]})
+        save.append_event(event_list1)
+        pel1=0
+        event_list2.update({'Pellets': [pel2]})
+        save.append_event(event_list2)
+        pel2=0
+        event_list3.update({'Pellets': [pel3]})
+        save.append_event(event_list3)
+        pel3=0
+        event_list4.update({'Pellets': [pel4]})
+        save.append_event(event_list4)
+        pel4=0
+        print("last entries saved from all units")
+        upload_time=datetime.now()-upload_interval
+        action_time=datetime.now()-action_interval
+    time_since_upload=datetime.now()-upload_time
+    time_since_action=datetime.now()-action_time
+    
     if time_since_upload>upload_interval:
         if time_since_action>action_interval:
             try:
