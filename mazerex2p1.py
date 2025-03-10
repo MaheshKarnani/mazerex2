@@ -327,19 +327,22 @@ while True:
         
     # force data collection and upload when user presses c
     if keyboard.is_pressed('c'):
-        event_list1.update({'Pellets': [pel1]})
-        save.append_event(event_list1)
-        pel1=0
-        event_list2.update({'Pellets': [pel2]})
-        save.append_event(event_list2)
-        pel2=0
-        event_list3.update({'Pellets': [pel3]})
-        save.append_event(event_list3)
-        pel3=0
-        event_list4.update({'Pellets': [pel4]})
-        save.append_event(event_list4)
-        pel4=0
-        print("last entries saved from all units")
+        try:
+            event_list1.update({'Pellets': [pel1]})
+            save.append_event(event_list1)
+            pel1=0
+            event_list2.update({'Pellets': [pel2]})
+            save.append_event(event_list2)
+            pel2=0
+            event_list3.update({'Pellets': [pel3]})
+            save.append_event(event_list3)
+            pel3=0
+            event_list4.update({'Pellets': [pel4]})
+            save.append_event(event_list4)
+            pel4=0
+            print("last entries saved from all units")
+        except:
+            print("no new data in units")        
         upload_time=datetime.now()-upload_interval
         action_time=datetime.now()-action_interval
     time_since_upload=datetime.now()-upload_time
@@ -349,6 +352,7 @@ while True:
         if time_since_action>action_interval:
             try:
                 #deposit weight data to public repository
+                print("Commencing upload. Stand by.")
                 upload_time=datetime.now()
                 g = Github("token")
                 repo = g.get_user().get_repo('mazerex2') # repo name
