@@ -14,7 +14,11 @@ from github import Github, InputGitTreeElement
 import keyboard
 
 #Initialization routine
-mode=3 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
+mode=0 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
+authorize_puff=DigitalOutputDevice(21)
+authorize_puff.off()
+if mode==2 or mode==4:
+    authorize_puff.on()
 #load scale calibration files
 scale_cal_filepath="/home/pi/Documents/Data/ScaleCal.json"
 scale_tare_filepath="/home/pi/Documents/Data/ScaleTare.json"
