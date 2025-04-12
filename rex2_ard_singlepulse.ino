@@ -6,6 +6,8 @@ const int in2 = 3;
 const int in3 = 4;
 const int in4 = 5;
 
+const int authorize_puff=13;
+
 //outputs
 const int out1 = 6;//outputs to valve switch
 const int out2 = 7;
@@ -36,7 +38,9 @@ void setup()
   pinMode(out1, OUTPUT);
   pinMode(out2, OUTPUT);  
   pinMode(out3, OUTPUT); 
-  pinMode(out4, OUTPUT); 
+  pinMode(out4, OUTPUT);
+  
+  pinMode(authorize_puff, INPUT);
   
   digitalWrite(out1, HIGH);//init
   digitalWrite(out2, HIGH);
@@ -54,44 +58,46 @@ void loop()
 
     chance=random(0,2);
     //Serial.println(chance);
-    
-    if ((digitalRead(in1) == HIGH) && (prev_in1 == LOW) && (chance == HIGH)) //rising edge detected
+    if (digitalRead(authorize_puff) == HIGH)
     {
-        digitalWrite(out1, LOW);
-        start1=millis();
-    }
-    if (millis()>start1+pulse_width) //pulse complete
-    {
-        digitalWrite(out1, HIGH);
-    }
-
-    if ((digitalRead(in2) == HIGH) && (prev_in2 == LOW) && (chance == HIGH)) //rising edge detected
-    {
-        digitalWrite(out2, LOW);
-        start2=millis();
-    }
-    if (millis()>start2+pulse_width) //pulse complete
-    {
-        digitalWrite(out2, HIGH);
-    }
-    
-    if ((digitalRead(in3) == HIGH) && (prev_in3 == LOW) && (chance == HIGH)) //rising edge detected
-    {
-        digitalWrite(out3, LOW);
-        start3=millis();
-    }
-    if (millis()>start3+pulse_width) //pulse complete
-    {
-        digitalWrite(out3, HIGH);
-    }
-
-    if ((digitalRead(in4) == HIGH) && (prev_in4 == LOW) && (chance == HIGH)) //rising edge detected
-    {
-        digitalWrite(out4, LOW);
-        start4=millis();
-    }
-    if (millis()>start4+pulse_width) //pulse complete
-    {
-        digitalWrite(out4, HIGH);
+      if ((digitalRead(in1) == HIGH) && (prev_in1 == LOW) && (chance == HIGH)) //rising edge detected
+      {
+          digitalWrite(out1, LOW);
+          start1=millis();
+      }
+      if (millis()>start1+pulse_width) //pulse complete
+      {
+          digitalWrite(out1, HIGH);
+      }
+  
+      if ((digitalRead(in2) == HIGH) && (prev_in2 == LOW) && (chance == HIGH)) //rising edge detected
+      {
+          digitalWrite(out2, LOW);
+          start2=millis();
+      }
+      if (millis()>start2+pulse_width) //pulse complete
+      {
+          digitalWrite(out2, HIGH);
+      }
+      
+      if ((digitalRead(in3) == HIGH) && (prev_in3 == LOW) && (chance == HIGH)) //rising edge detected
+      {
+          digitalWrite(out3, LOW);
+          start3=millis();
+      }
+      if (millis()>start3+pulse_width) //pulse complete
+      {
+          digitalWrite(out3, HIGH);
+      }
+  
+      if ((digitalRead(in4) == HIGH) && (prev_in4 == LOW) && (chance == HIGH)) //rising edge detected
+      {
+          digitalWrite(out4, LOW);
+          start4=millis();
+      }
+      if (millis()>start4+pulse_width) //pulse complete
+      {
+          digitalWrite(out4, HIGH);
+      }
     }
 }//void loop end
