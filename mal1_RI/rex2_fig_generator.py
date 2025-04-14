@@ -8,18 +8,18 @@ import matplotlib.dates as mdates
 import statistics
 plt.close('all')
 
-start_date=date(2025,3,30) 
-marker_times=[datetime(2025,4,3,12,0,0), datetime(2025,4,8,12,0,0), datetime(2025,4,12,12,0,0)]#add important dates here to add vertical lines on last plot
+start_date=date(2025,4,7) 
+marker_times=[datetime(2025,4,14,12,0,0)]#add important dates here to add vertical lines on last plot
 last_date=date.today() #OR TYPE DESIRED DATE ON NEXT LINE AND UNCOMMENT IT
-# last_date=date(2025,4,8)
+# last_date=date(2025,4,13)
 datetag=str(last_date)
-known_tags=[19644207130,19645782,19647186244,19644194143,19647181251]
-filtermin=13 #lower limit in g
-filtermax=21 #upper limit in g 
+known_tags=[1964553121,19645190242,1964711262,196471892,19645183251]
+filtermin=16 #lower limit in g
+filtermax=30 #upper limit in g 
 d=last_date-start_date
 days_to_plot=d.days
 
-loadpath="/home/maheshkarnani/Documents/Code/Mazerex2/mazerex2/fem2_RIctrl/"
+loadpath="/home/rex2/Documents/Data/"
 data = pd.read_csv(loadpath + datetag + "_events.csv")
 tags=data['Animal']
 unique_tags=list(set(tags))
@@ -179,4 +179,4 @@ plt.grid()
 plt.subplots_adjust(bottom=0.15)
 # plt.show()
 # plt.close()
-plt.savefig(loadpath + "fem2post.svg", bbox_inches='tight', pad_inches=0)
+plt.savefig(loadpath + "mal1post.svg", bbox_inches='tight', pad_inches=0)
