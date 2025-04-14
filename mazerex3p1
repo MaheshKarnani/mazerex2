@@ -332,7 +332,7 @@ while True:
         action_time=datetime.now()
             
     # force data collection and upload when user presses c
-    if keyboard.is_pressed('c'):
+    if keyboard.is_pressed('alt'):
         event_list1.update({'Pellets': [pel1]})
         save.append_event(event_list1)
         pel1=0
@@ -354,6 +354,10 @@ while True:
     if time_since_upload>upload_interval:
         if time_since_action>action_interval:
             try:
+                import rex1_fig_generator.py
+            except:
+                print("fig creation raised messages")
+            try:
                 #deposit weight data to public repository
                 upload_time=datetime.now()
                 g = Github("x")
@@ -366,6 +370,8 @@ while True:
                 datetag=str(date.today()-timedelta(days = 1))
                 file_list.append(savepath + datetag + "_events.csv")
                 file_names.append("fem2_RIctrl/" + datetag + "_events.csv")
+                file_list.append(savepath + "rig1output.svg")
+                file_names.append("fem2_RIctrl/rig1output.svg")
                 commit_message = 'automated upload from rig1'
                 master_ref = repo.get_git_ref('heads/main')
                 master_sha = master_ref.object.sha
