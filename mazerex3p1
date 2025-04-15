@@ -2,7 +2,7 @@ import qwiic_tca9548a
 import PyNAU7802
 import smbus2
 import time
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, time
 import pandas as pd
 import os
 import json
@@ -15,10 +15,39 @@ import keyboard
 
 #Initialization routine
 mode=0 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
+mode_switch=False
+#Experiment plan
+if date.today()>date(2025,4,11):
+    mode=1 #bsl
+if date.today()>date(2025,4,15):
+    mode=2 #induction1
+if date.today()>date(2025,4,20):
+    mode=3 #post1
+if date.today()>date(2025,4,24):
+    mode=4 #induction2
+if date.today()>date(2025,4,29):
+    mode=5 #post2
+if (date.today()==date(2025,4,11) or
+    date.today()==date(2025,4,15) or
+    date.today()==date(2025,4,20) or
+    date.today()==date(2025,4,24) or
+    date.today()==date(2025,4,29)):
+    mode_switch=True # will trigger mode+1 at 12pm.
+    switch_time=datetime.combine(date.today(),time(12,0))
+    
 authorize_puff=DigitalOutputDevice(21)
-authorize_puff.off()
+print("mode is")
+print(mode)
 if mode==2 or mode==4:
     authorize_puff.on()
+    print("puffs authorized")
+else:
+    authorize_puff.off()
+    print("puffs OFF")
+if mode_switch:
+    print("switching modes today at")
+    print(switch_time)
+    
 #load scale calibration files
 scale_cal_filepath="/home/pi/Documents/Data/ScaleCal.json"
 scale_tare_filepath="/home/pi/Documents/Data/ScaleTare.json"
@@ -278,6 +307,19 @@ action_time=datetime.now()
 action_interval=timedelta(minutes=15) #safe interval from last detection to start upload, 15 min suggested
 # Experiment loop
 while True:
+    if mode_switch:
+        if datetime.now()>switch_time:
+            mode=mode+1
+            print("mode switched to")
+            print(mode)
+            if mode==2 or mode==4:
+                authorize_puff.on()
+                print("puffs authorized")
+            else:
+                authorize_puff.off()
+                print("puffs OFF")
+            mode_switch=False
+
     eat1.when_activated=count_pel1
     eat2.when_activated=count_pel2
     eat3.when_activated=count_pel3
