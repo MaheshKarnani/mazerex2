@@ -9,17 +9,10 @@ import statistics
 import json
 plt.close('all')
 
-start_date=date(2025,7,11) 
-marker_times=[datetime(2025,7,11,12,0,0),
-            datetime(2025,7,13,12,0,0),
-            datetime(2025,7,17,12,0,0),
-            datetime(2025,7,19,12,0,0),
-            datetime(2025,7,22,12,0,0),
-            datetime(2025,7,25,12,0,0),
-            datetime(2025,7,29,12,0,0),
-            datetime(2025,8,7,12,0,0),
-            datetime(2025,8,11,12,0,0),
-            datetime(2025,8,14,12,0,0)]#add important dates here to add vertical lines on last plot
+start_date=date(2025,8,27) 
+marker_times=[datetime(2025,9,5,12,0,0),
+            datetime(2025,9,9,12,0,0),
+            datetime(2025,9,12,12,0,0)]#add important dates here to add vertical lines on last plot
 last_date=date.today() #OR TYPE DESIRED DATE ON NEXT LINE AND UNCOMMENT IT
 # last_date=date(2025,8,10)
 datetag=str(last_date)
