@@ -9,10 +9,10 @@ import statistics
 import json
 plt.close('all')
 
-start_date=date(2025,8,27) 
-marker_times=[datetime(2025,9,5,12,0,0),
-            datetime(2025,9,9,12,0,0),
-            datetime(2025,9,12,12,0,0)]#add important dates here to add vertical lines on last plot
+start_date=date(2025,9,21) 
+marker_times=[datetime(2025,9,23,12,0,0),
+            datetime(2025,9,26,12,0,0),
+            datetime(2025,9,29,12,0,0)]#add important dates here to add vertical lines on last plot
 last_date=date.today() #OR TYPE DESIRED DATE ON NEXT LINE AND UNCOMMENT IT
 # last_date=date(2025,8,10)
 datetag=str(last_date)
@@ -25,13 +25,13 @@ known_tags=[1111111120121,
 1111111170171,
 11111112120]
 filtermin=14 #lower limit in g
-filtermax=21 #upper limit in g 
+filtermax=24 #upper limit in g 
 d=last_date-start_date
 days_to_plot=d.days
 
-weight_history_file="/home/pi/Documents/Data/WeigthHistory.csv"
+weight_history_file="/home/flan1/Documents/Data/WeigthHistory.csv"
 
-loadpath="/home/pi/Documents/Data/"
+loadpath="/home/flan1/Documents/Data/"
 data = pd.read_csv(loadpath + datetag + "_events.csv")
 tags=data['Animal']
 unique_tags=list(set(tags))

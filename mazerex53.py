@@ -23,13 +23,13 @@ state4=0
 mode=0 #experiment mode 0=habituation, 1=bsl, 2=induction, 3=post, 4=induction_repeat, 5=post_repeat
 mode_switch=False
 #Experiment plan
-if date.today()>date(2025,9,15):
-    mode=1 #bsl
-if date.today()>date(2025,9,18):
-    mode=2 #induction1
 if date.today()>date(2025,9,21):
+    mode=1 #bsl
+if date.today()>date(2025,9,23):
+    mode=2 #induction1
+if date.today()>date(2025,9,26):
     mode=3 #post1
-if date.today()>date(2025,9,24):
+if date.today()>date(2025,9,29):
     mode=4 #post2
 # if date.today()>date(2025,8,6):
 #     mode=6 #bsl3
@@ -39,10 +39,10 @@ if date.today()>date(2025,9,24):
 #     mode=8 #remind3
 # if date.today()>date(2025,8,14):
 #     mode=9 #post3
-if (date.today()==date(2025,9,15) or
-    date.today()==date(2025,9,18) or
-    date.today()==date(2025,9,21)or
-    date.today()==date(2025,9,24)):
+if (date.today()==date(2025,9,21) or
+    date.today()==date(2025,9,23) or
+    date.today()==date(2025,9,26)or
+    date.today()==date(2025,9,29)):
 #     date.today()==date(2025,8,7)or
 #     date.today()==date(2025,8,11)or
 #     date.today()==date(2025,8,14)):
@@ -67,8 +67,8 @@ if mode_switch:
     print(switch_time)
     
 #load scale calibration files
-scale_cal_filepath="/home/rex2/Documents/Data/ScaleCal.json"
-scale_tare_filepath="/home/rex2/Documents/Data/ScaleTare.json"
+scale_cal_filepath="/home/flan1/Documents/Data/ScaleCal.json"
+scale_tare_filepath="/home/flan1/Documents/Data/ScaleTare.json"
 with open(scale_cal_filepath, 'r') as file:
     scale_cal=json.load(file)
 with open(scale_tare_filepath, 'r') as file:
@@ -139,7 +139,7 @@ def scan_tag1(mux,port):
     bus = create_bus()
     port = port
     enable_port(mux, port)
-    my_RFID1 = qwiic_rfid.QwiicRFID(0x13)
+    my_RFID1 = qwiic_rfid.QwiicRFID(0x15)
     if not my_RFID1.begin():
         # print(f"NOT CONNECTED TO : {port} \n")
         disable_port(mux, port)
@@ -181,7 +181,7 @@ def scan_tag4(mux,port):
     bus = create_bus()
     port = port
     enable_port(mux, port)
-    my_RFID4 = qwiic_rfid.QwiicRFID(0x12)
+    my_RFID4 = qwiic_rfid.QwiicRFID(0x13)
     if not my_RFID4.begin():
         # print(f"NOT CONNECTED TO : {port} \n")
         disable_port(mux, port)
@@ -206,7 +206,7 @@ get_reading(mux[0]["instance"],1)
 tag1=int(scan_tag1(mux[0]["instance"],2))
 tag2=int(scan_tag2(mux[0]["instance"],0))
 tag3=int(scan_tag3(mux[0]["instance"],7))
-tag4=int(scan_tag4(mux[0]["instance"],4))
+tag4=int(scan_tag4(mux[0]["instance"],6))
 print(tag1)
 print(tag2)
 print(tag3)
@@ -304,14 +304,17 @@ animal3=tag3
 animal4=tag4
 
 known_tags=[19647231169,1111110210210,
-121833859,
-12185199220,
-12184189167,
-12184102124,
-121835736]
+1111111120121,
+11111112223,
+1111111168169,
+1111110189189,
+1111111140141,
+1111111117116,
+1111111170171,
+11111112120]
 
-savepath="/home/rex2/Documents/Data/"
-weight_history_file="/home/rex2/Documents/Data/WeigthHistory.csv"
+savepath="/home/flan1/Documents/Data/"
+weight_history_file="/home/flan1/Documents/Data/WeigthHistory.csv"
 weight_history = np.array(pd.read_csv(weight_history_file))
 print(weight_history)
 
@@ -460,7 +463,7 @@ while True:
             save.append_lindzey(event_list3)#for this animal
             
     if detect4.value == 0:
-        tag4=int(scan_tag4(mux[0]["instance"],4))
+        tag4=int(scan_tag4(mux[0]["instance"],6))
         lindz_action_time=datetime.now()
         if tag4 in known_tags:
             ser.write(str.encode('c'))
@@ -552,17 +555,17 @@ while True:
                 file_names=list()
                 datetag=str(date.today())
                 file_list.append(savepath + datetag + "_events.csv")
-                file_names.append("mal2_RI/" + datetag + "_events.csv")
+                file_names.append("fem6_test/" + datetag + "_events.csv")
                 file_list.append(savepath + datetag + "_autolindz.csv")
-                file_names.append("mal2_RI/" + datetag + "_autolindz.csv")
+                file_names.append("fem6_test/" + datetag + "_autolindz.csv")
                 datetag=str(date.today()-timedelta(days = 1))
                 file_list.append(savepath + datetag + "_events.csv")
-                file_names.append("mal2_RI/" + datetag + "_events.csv")
+                file_names.append("fem6_test/" + datetag + "_events.csv")
                 file_list.append(savepath + datetag + "_autolindz.csv")
-                file_names.append("mal2_RI/" + datetag + "_autolindz.csv")
-                file_list.append(savepath + "rig2output.svg")
-                file_names.append("mal2_RI/rig2output.svg")
-                commit_message = 'automated upload from rig2'
+                file_names.append("fem6_test/" + datetag + "_autolindz.csv")
+                file_list.append(savepath + "rig1output.svg")
+                file_names.append("fem6_test/rig1output.svg")
+                commit_message = 'automated upload from rig1'
                 master_ref = repo.get_git_ref('heads/main')
                 master_sha = master_ref.object.sha
                 base_tree = repo.get_git_tree(master_sha)
