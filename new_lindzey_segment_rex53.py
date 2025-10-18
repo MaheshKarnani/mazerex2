@@ -76,8 +76,8 @@
                     save.append_lindzey(status_list)
                 detect_list_B.append(tag4)
                 start_time=datetime.now()
-        if not tube_active and doorA_open.value == 0 and doorB_open.value == 0:
-#             print('test1')
+        if not tube_active and (state3>0 or state4>0) and doorA_open.value == 0 and doorB_open.value == 0:
+            print('tube closed')
             start_time=datetime.now()
             tube_active=True
             status_list.update({'Start_Time': [datetime.now()]})
