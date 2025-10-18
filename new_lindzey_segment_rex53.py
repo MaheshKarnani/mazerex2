@@ -2,14 +2,14 @@
     
     timeout_flag=True
     timeout_start=datetime.now()
-    timeout_dur=timedelta(minutes=5)
-    doorA_open=DigitalInputDevice(X)
-    doorB_open=DigitalInputDevice(X)
+    timeout_dur=timedelta(minutes=3)
+    doorA_open=DigitalInputDevice(14)
+    doorB_open=DigitalInputDevice(15)
     tube_active=True
     object_start=datetime.now()
 
-    remove these:
     '''
+  
     #Lindzey tube:
     if timeout_flag:
         if detect3.value == 0 or detect4.value == 0:
@@ -23,6 +23,7 @@
             object_start=datetime.now()
         if timeout_start+timeout_dur<datetime.now():
             timeout_flag=False
+            tube_active=False
             ser.write(str.encode('a'))
             print('TUBE OPEN')
             status_list.update({'Start_Time': [datetime.now()]})
@@ -38,7 +39,7 @@
             # lindz_action_time=datetime.now()
             if tag3 in known_tags:
                 ser.write(str.encode('b'))
-                print("entry A")
+#                 print("entry A")
                 print(known_tags.index(tag3))
                 event_list3.update({'Start_Time': [datetime.now()]})
                 event_list3.update({'Animal': [tag3]})
@@ -46,7 +47,7 @@
                 event_list4.update({'Mode': [state4]})
                 save.append_lindzey(event_list3)#for this animal
                 state3=state3+1
-                if doorA_open and detect_list_A and (tag3 not in detect_list_A):
+                if doorA_open.value == 1 and detect_list_A and (tag3 not in detect_list_A):
                     ser.write(str.encode('c'))
                     print("followerA")
                     status_list.update({'Start_Time': [datetime.now()]})
@@ -59,7 +60,7 @@
             lindz_action_time=datetime.now()
             if tag4 in known_tags:
                 ser.write(str.encode('c'))
-                print("entry4")
+#                 print("entry B")
                 print(known_tags.index(tag4))
                 event_list4.update({'Start_Time': [datetime.now()]})
                 event_list4.update({'Animal': [tag4]})
@@ -67,7 +68,7 @@
                 event_list4.update({'Mode': [state4]})
                 save.append_lindzey(event_list4)#for this animal
                 state4=state4+1
-                if doorB_open and detect_list_B and (tag4 not in detect_list_B):
+                if doorB_open.value == 1 and detect_list_B and (tag4 not in detect_list_B):
                     ser.write(str.encode('b'))
                     print("followerB")
                     status_list.update({'Start_Time': [datetime.now()]})
@@ -75,13 +76,15 @@
                     save.append_lindzey(status_list)
                 detect_list_B.append(tag4)
                 start_time=datetime.now()
-        if not tube_active and not doorA_open and not doorB_open:
+        if not tube_active and doorA_open.value == 0 and doorB_open.value == 0:
+#             print('test1')
             start_time=datetime.now()
             tube_active=True
             status_list.update({'Start_Time': [datetime.now()]})
             animalsA=set(detect_list_A)
+#             print(animalsA)
             animalsB=set(detect_list_B)
-            if len(animalsA)==1 and len(animalsA)==1:
+            if len(animalsA)==1 and len(animalsB)==1:
                 if animalsA==animalsB:
                     print('solo traversal')
                     status_list.update({'Mode': ["solo"]})
@@ -99,6 +102,7 @@
                 state3=0
                 state4=0
                 tube_active=False
+                timeout_start=datetime.now()
                 timeout_flag=True #breaks to timeout state, so no more saved data, only printouts
                 if test_started:
                     status_list.update({'Start_Time': [datetime.now()]})
@@ -108,3 +112,4 @@
             else:     
                 print('tube still active')
                 start_time=datetime.now()
+            
