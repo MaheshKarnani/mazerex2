@@ -5,10 +5,10 @@ Servo servo2;
 const int servoPin1 = 11;// nano pwm 3 5 6 9 10 11
 const int servoPin2 = 10;
 //door angles
-const int CLOSE1= 190;
-const int OPEN1= 150;
-const int CLOSE2= 10;
-const int OPEN2= 50;
+const int CLOSE1= 65;
+const int OPEN1= 30;
+const int CLOSE2= 40;
+const int OPEN2= 70;
 int target1=CLOSE1;
 int target2=CLOSE2;
 bool move1=true;
@@ -29,8 +29,10 @@ const int auth1=A0;
 const int auth2=A1;
 
 //outputs
-const int out1 = 6;//outputs to valve switch
-const int out2 = 7;
+const int out1 = 7;//outputs to valve switch
+const int out2 = 6;
+const int doorA_open = A2;//door state outputs to pi
+const int doorB_open = A3;
 
 //timers
 unsigned long start1=millis();
@@ -59,6 +61,8 @@ void setup()
   pinMode(in2, INPUT);
   pinMode(out1, OUTPUT);
   pinMode(out2, OUTPUT); 
+  pinMode(doorA_open, OUTPUT);
+  pinMode(doorB_open, OUTPUT); 
   
   pinMode(authorize_puff, INPUT);
 
@@ -67,6 +71,8 @@ void setup()
   
   digitalWrite(out1, HIGH);//init
   digitalWrite(out2, HIGH);
+  digitalWrite(doorA_open, LOW);//init
+  digitalWrite(doorB_open, LOW);
 }
 
 void loop() {
@@ -80,8 +86,8 @@ void recvInfo() {
     receivedChar = Serial.read();
     if (receivedChar=='a')
     {
-      servo1.write(OPEN1);move1=false;
-      servo2.write(OPEN2);move2=false;
+      servo1.write(OPEN1);move1=false;digitalWrite(doorA_open, HIGH);
+      servo2.write(OPEN2);move2=false;digitalWrite(doorB_open, HIGH);
     }
     if (receivedChar=='b')
     {
@@ -95,8 +101,8 @@ void recvInfo() {
 }
 
 void moveServo() {
-  if ((move1) && (digitalRead(proxPin1)==LOW)){servo1.write(target1);move1=false;}
-  if ((move2) && (digitalRead(proxPin2)==LOW)){servo2.write(target2);move2=false;}
+  if ((move1) && (digitalRead(proxPin1)==LOW)){servo1.write(target1);move1=false;digitalWrite(doorA_open, LOW);}
+  if ((move2) && (digitalRead(proxPin2)==LOW)){servo2.write(target2);move2=false;digitalWrite(doorB_open, LOW);}
 }
 
 void rex() {
