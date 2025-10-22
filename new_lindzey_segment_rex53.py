@@ -81,7 +81,9 @@
                 detect_list_B.append(tag4)
                 start_time=datetime.now()
         if (doorA_open.value == 0 or doorB_open.value == 0) and not tube_active and close_time+interval<datetime.now() and beam1_detect.value==1:#unobstructed, a mouse likely triggered and retreated.
+            ser.write(str.encode('b'))
             print('a door has closed and tube empty -- timeout and reset')
+            ser.write(str.encode('c'))
             state3=0
             state4=0
             tube_active=False
