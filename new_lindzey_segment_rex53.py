@@ -2,12 +2,12 @@
     
     timeout_flag=True
     timeout_start=datetime.now()
-    timeout_dur=timedelta(minutes=3)
+    timeout_dur=timedelta(seconds=30)
     doorA_open=DigitalInputDevice(14)
     doorB_open=DigitalInputDevice(15)
     tube_active=True
     object_start=datetime.now()
-
+    close_time=datetime.now()
     '''
   
     #Lindzey tube:
@@ -39,6 +39,7 @@
             # lindz_action_time=datetime.now()
             if tag3 in known_tags:
                 ser.write(str.encode('b'))
+                close_time=datetime.now()
 #                 print("entry A")
                 print(known_tags.index(tag3))
                 event_list3.update({'Start_Time': [datetime.now()]})
@@ -49,6 +50,7 @@
                 state3=state3+1
                 if doorA_open.value == 1 and detect_list_A and (tag3 not in detect_list_A):
                     ser.write(str.encode('c'))
+                    close_time=datetime.now()
                     print("followerA")
                     status_list.update({'Start_Time': [datetime.now()]})
                     status_list.update({'Mode': ["followerA"]})
@@ -60,6 +62,7 @@
             lindz_action_time=datetime.now()
             if tag4 in known_tags:
                 ser.write(str.encode('c'))
+                close_time=datetime.now()
 #                 print("entry B")
                 print(known_tags.index(tag4))
                 event_list4.update({'Start_Time': [datetime.now()]})
@@ -70,12 +73,20 @@
                 state4=state4+1
                 if doorB_open.value == 1 and detect_list_B and (tag4 not in detect_list_B):
                     ser.write(str.encode('b'))
+                    close_time=datetime.now()
                     print("followerB")
                     status_list.update({'Start_Time': [datetime.now()]})
                     status_list.update({'Mode': ["followerB"]})
                     save.append_lindzey(status_list)
                 detect_list_B.append(tag4)
                 start_time=datetime.now()
+        if (doorA_open.value == 0 or doorB_open.value == 0) and not tube_active and close_time+interval<datetime.now() and beam1_detect.value==1:#unobstructed, a mouse likely triggered and retreated.
+            print('a door has closed and tube empty -- timeout and reset')
+            state3=0
+            state4=0
+            tube_active=False
+            timeout_start=datetime.now()
+            timeout_flag=True #breaks to timeout state, so no more saved data, only printouts
         if not tube_active and (state3>0 or state4>0) and doorA_open.value == 0 and doorB_open.value == 0:
             print('tube closed')
             start_time=datetime.now()
