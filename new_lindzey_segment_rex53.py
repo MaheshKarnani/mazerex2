@@ -8,6 +8,7 @@
     tube_active=True
     object_start=datetime.now()
     close_time=datetime.now()
+    close_flag=False
     '''
   
     #Lindzey tube:
@@ -24,6 +25,7 @@
         if timeout_start+timeout_dur<datetime.now():
             timeout_flag=False
             tube_active=False
+            close_flag=False
             ser.write(str.encode('a'))
             print('TUBE OPEN')
             status_list.update({'Start_Time': [datetime.now()]})
@@ -40,6 +42,7 @@
             if tag3 in known_tags:
                 ser.write(str.encode('b'))
                 close_time=datetime.now()
+                close_flag=True
 #                 print("entry A")
                 print(known_tags.index(tag3))
                 event_list3.update({'Start_Time': [datetime.now()]})
@@ -51,6 +54,7 @@
                 if doorA_open.value == 1 and detect_list_A and (tag3 not in detect_list_A):
                     ser.write(str.encode('c'))
                     close_time=datetime.now()
+                    close_flag=True
                     print("followerA")
                     status_list.update({'Start_Time': [datetime.now()]})
                     status_list.update({'Mode': ["followerA"]})
@@ -63,6 +67,7 @@
             if tag4 in known_tags:
                 ser.write(str.encode('c'))
                 close_time=datetime.now()
+                close_flag=True
 #                 print("entry B")
                 print(known_tags.index(tag4))
                 event_list4.update({'Start_Time': [datetime.now()]})
@@ -74,13 +79,14 @@
                 if doorB_open.value == 1 and detect_list_B and (tag4 not in detect_list_B):
                     ser.write(str.encode('b'))
                     close_time=datetime.now()
+                    close_flag=True
                     print("followerB")
                     status_list.update({'Start_Time': [datetime.now()]})
                     status_list.update({'Mode': ["followerB"]})
                     save.append_lindzey(status_list)
                 detect_list_B.append(tag4)
                 start_time=datetime.now()
-        if (doorA_open.value == 0 or doorB_open.value == 0) and not tube_active and close_time+interval<datetime.now() and beam1_detect.value==1:#unobstructed, a mouse likely triggered and retreated.
+        if close_flag and not tube_active and close_time+interval<datetime.now() and beam1_detect.value==1:#unobstructed, a mouse likely triggered and retreated.
             ser.write(str.encode('b'))
             print('a door has closed and tube empty -- timeout and reset')
             ser.write(str.encode('c'))
