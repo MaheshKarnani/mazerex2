@@ -128,3 +128,120 @@ for marker_time in marker_times:
     ax1.axvline(marker_time, color='black', linestyle='dashed')
     ax2.axvline(marker_time, color='black', linestyle='dashed')
 plt.show()
+
+#annotating the plot with induction 1 and 2;
+ax2.annotate('Baseline', xy=(510, 390), xycoords='figure points', fontsize=7, color='orange')
+ax2.annotate('Induction 1', xy=(558.5, 390), xycoords='figure points', fontsize=7, color='red')
+ax2.annotate('Induction 2', xy=(632.5, 390), xycoords='figure points', fontsize=7, color='blue')
+plt.show()
+
+###This is all a bit messy - Couldn't figure out a way to tie the text to the marker times themselves in
+###graphs, possibly a better way to do it.
+
+#%Change from baseline to last day of induction 1;
+
+##Making the dataframe readable (other approaches did not work, kept getting errors), so used approach
+#from line 25 to make it readable for the commands, except now just taking data from 04/03 and 
+#not all of the .csv files
+baselinedata_coll_weight = pd.read_csv(loadpath + "2025-04-03_events.csv")
+for j in range(days_to_plot):
+    day=start_date+timedelta(days = j+1) 
+    baselinedata = pd.read_csv(loadpath + "2025-04-03_events.csv") 
+    baselineframes=[baselinedata_coll_weight,baselinedata]
+    baselinedata_coll_weight=pd.concat(baselineframes)
+baselinedf=baselinedata_coll_weight
+baselinedf['Start_Time']=pd.to_datetime(baselinedf['Start_Time'])
+baselinedf['Animal']=baselinedf['Animal'].astype(int)
+print(baselinedf)
+
+#Separating this df by animal (Otherwise returns "Too many indexers" error)
+BaselineAnimal1 = baselinedf.loc[baselinedf['Animal'] == 19645782]
+BaselineAnimal2 = baselinedf.loc[baselinedf['Animal'] == 19647186244]
+BaselineAnimal3 = baselinedf.loc[baselinedf['Animal'] == 19644194143]
+BaselineAnimal4 = baselinedf.loc[baselinedf['Animal'] == 19647181251]
+
+#Computing a mean for each animal for baseline (04/07)
+animal1baseline = statistics.mean(BaselineAnimal1['Weight'])
+animal2baseline = statistics.mean(BaselineAnimal2['Weight'])
+animal3baseline = statistics.mean(BaselineAnimal3['Weight'])
+animal4baseline = statistics.mean(BaselineAnimal4['Weight'])
+
+#Same approach as before for making the dataframe "readable", just with 04/07 instead of 04/03
+induct1data_coll_weight = pd.read_csv(loadpath + "2025-04-07_events.csv")
+for j in range(days_to_plot):
+    day=start_date+timedelta(days = j+1) 
+    induct1data = pd.read_csv(loadpath + "2025-04-07_events.csv") 
+    induct1frames=[induct1data_coll_weight,induct1data]
+    induct1data_coll_weight=pd.concat(induct1frames)
+induct1df=induct1data_coll_weight
+induct1df['Start_Time']=pd.to_datetime(induct1df['Start_Time'])
+induct1df['Animal']=induct1df['Animal'].astype(int)
+
+#Induction1 weights for each animal
+Induct1Weight1 = induct1df.loc[induct1df['Animal'] == 19645782]
+Induct1Weight2 = induct1df.loc[induct1df['Animal'] == 19647186244]
+Induct1Weight3 = induct1df.loc[induct1df['Animal'] == 19644194143]
+Induct1Weight4 = induct1df.loc[induct1df['Animal'] == 19647181251]
+
+#Computing mean for each animal
+Induct1animal1 = statistics.mean(Induct1Weight1['Weight'])
+Induct1animal2 = statistics.mean(Induct1Weight2['Weight'])
+Induct1animal3 = statistics.mean(Induct1Weight3['Weight'])
+Induct1animal4 = statistics.mean(Induct1Weight4['Weight'])
+
+#Computing percentage change for each animal (% change = change/original x 100)
+percentchange1 = ((animal1baseline - Induct1animal1)/animal1baseline*100)
+print(percentchange1)
+percentchange2 = ((animal2baseline - Induct1animal2)/(animal2baseline)*100)
+print(percentchange2)
+percentchange3 = ((animal3baseline - Induct1animal3)/(animal3baseline)*100)
+print(percentchange3)
+percentchange4 = ((animal4baseline - Induct1animal4)/(animal4baseline)*100)
+print(percentchange4)
+
+#Making boxplot for panel A (I.e., completing the original coding task assigned)
+Animals = ['1', '2', '3', '4']
+Percent = [percentchange1, percentchange2, percentchange3, percentchange4]
+plt.bar(Animals, Percent)
+plt.xlabel('Animal')
+plt.ylabel('Percentage Change (%)')
+plt.title('VRF - Baseline Weight vs. Induction1')
+plt.show()
+
+#This should compute the average weight across *all* animals for the end of induction 1
+grandaverageinduct1 = statistics.mean(induct1df['Weight'])
+
+grandpercentchange1 = ((animal1baseline - grandaverageinduct1)/animal1baseline*100)
+print(grandpercentchange1)
+grandpercentchange2 = ((animal2baseline - grandaverageinduct1)/(animal2baseline)*100)
+print(grandpercentchange2)
+grandpercentchange3 = ((animal3baseline - grandaverageinduct1)/(animal3baseline)*100)
+print(grandpercentchange3)
+grandpercentchange4 = ((animal4baseline - grandaverageinduct1)/(animal4baseline)*100)
+print(grandpercentchange4)
+
+Animals = ['1', '2', '3', '4']
+Percent = [grandpercentchange1, grandpercentchange2, grandpercentchange3, grandpercentchange4]
+plt.bar(Animals, Percent)
+plt.xlabel('Animal')
+plt.ylabel('Percentage Change (%)')
+plt.title('VRF - Baseline Weight vs. Grand Average Induction 1')
+plt.show()
+
+#To calculate z-score, calculating the average % change for the population (I.e., the 4 animals)
+averagepercentchange = (statistics.mean([percentchange1, percentchange2, percentchange3, percentchange4]))
+
+#Computing z-score as (population average - individual/standard deviation of the population)
+zscore1 = ((averagepercentchange - percentchange1)/statistics.stdev([percentchange1, percentchange2, percentchange3, percentchange4]))
+zscore2 = ((averagepercentchange - percentchange2)/statistics.stdev([percentchange1, percentchange2, percentchange3, percentchange4]))
+zscore3 = ((averagepercentchange - percentchange3)/statistics.stdev([percentchange1, percentchange2, percentchange3, percentchange4]))
+zscore4 = ((averagepercentchange - percentchange4)/statistics.stdev([percentchange1, percentchange2, percentchange3, percentchange4]))
+
+#Plotting
+Animals = ['1', '2', '3', '4']
+Percent = [zscore2, zscore2, zscore3, zscore4]
+plt.bar(Animals, Percent)
+plt.xlabel('Animal')
+plt.ylabel('Z-Score')
+plt.title('VRF - Z-Score')
+plt.show()
