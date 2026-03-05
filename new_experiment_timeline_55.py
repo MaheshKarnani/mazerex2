@@ -17,7 +17,7 @@ import keyboard
 import statistics
 #create standard experiment timeline for mazerex54 onwards
 time_line=list()
-savepath="/home/pi/Documents/Data/"
+savepath="/home/rex4/Documents/Data/"
 try:
     previous_TimeLine_file=savepath + "TimeLine.csv"
     previous_time_line = np.array(pd.read_csv(previous_TimeLine_file, header=None))
