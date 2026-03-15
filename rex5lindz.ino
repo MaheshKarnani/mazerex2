@@ -18,7 +18,7 @@ const int proxPin2 = A5;
 char receivedChar;
 
 //single pulse mazerex2 
-unsigned long pulse_width = 300; //in ms  
+unsigned long pulse_width = 500; //in ms  
 // inputs
 const int in1 = 2;// FED3 outputs duplicated
 const int in2 = 3;
